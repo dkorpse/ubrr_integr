@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+    <variable name="component_type" value="testing"/>
+    <variable name="app_name" value="testing"/>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d %-5p [%t] %c{0}:%L - [%X] %msg%n</pattern>
+        </layout>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeContext>true</includeContext>
+            <timeZone>UTC</timeZone>
+            <customFields>{"component_type":"${component_type}", "log_format": "json", "app_name":"${app_name}"}
+            </customFields>
+        </encoder>
+    </appender>
+    <appender name="ASYNC_STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>256</queueSize>
+        <neverBlock>true</neverBlock>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="STDOUT"/>
+    </appender>
+    <root level="debug">
+        <appender-ref ref="ASYNC_STDOUT"/>
+    </root>
+</configuration>

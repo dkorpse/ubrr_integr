@@ -1,0 +1,19 @@
+management:
+  endpoints.web.exposure.include: health,info
+
+logging:
+  level:
+    ru.ubrr: DEBUG
+
+spring:
+  kafka:
+    consumer:
+      bootstrap-servers: ${BOOTSTRAP_SERVERS}
+      group-id: ${GROUP_ID}
+      auto-offset-reset: ${AUTO_OFFSET_RESET}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      bootstrap-servers: ${BOOTSTRAP_SERVERS}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
