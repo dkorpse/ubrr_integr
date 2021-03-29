@@ -1,9 +1,9 @@
 def packageName   = 'ubrr_integr'
 def registryName  = 'nexus.dev.ubrr.ru'
 def imageFullName = ''
+def failureSent   = false
 pipeline {
     options {
-        gitLabConnection('OTP Gitlab')
         buildDiscarder logRotator(numToKeepStr: '5')
     }
     post {
@@ -56,9 +56,7 @@ pipeline {
     stages {
         stage('Prepare parameters') {
             steps {
-                gitlabCommitStatus(STAGE_NAME) {
                     echo "Opa!"
-                }
             }
         }
         stage('Compile project') {
@@ -66,23 +64,19 @@ pipeline {
                 docker { 
                     image registryName + '/dockerhub/maven:3.3-jdk-8'
                     reuseNode true
-                    args '-v ${workspace}:/build -v /etc/hosts:/etc/hosts:ro'
+                    args "--entrypoint='' -v /etc/hosts:/etc/hosts:ro"
                 }
             }
             steps {
-                gitlabCommitStatus(STAGE_NAME) {
-                    sh "cd /build"
-                    sh "mvn clean install"
-                }
+                    sh "mvn -Pubrr clean install"
             }
         }
         stage('Build docker image') {
             steps {
-                gitlabCommitStatus(STAGE_NAME) {
+                    script {
                         imageFullName = registryName + '/' + packageName + ":0.0.1"
                         dockerImage = docker.build(imageFullName)
                     }
-                }
             }
         }
     }

@@ -74,6 +74,20 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>ubrr</id>
+            <mirrors>
+                <mirror>
+                    <id>nexus</id>
+                    <name>UBRR Proxy Repository</name>
+                    <url>https://nexus.dev.ubrr.ru/repository/maven-central</url>
+                    <mirrorOf>central</mirrorOf>
+                </mirror>
+            </mirrors>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
