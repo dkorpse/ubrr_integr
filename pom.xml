@@ -74,6 +74,35 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>ubrr</id>
+            <repositories>
+                <repository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>central</id>
+                    <name>UBRR Proxy Repository</name>
+                    <url>https://nexus.dev.ubrr.ru/repository/maven-central/</url>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <releases>
+                        <updatePolicy>never</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>central</id>
+                    <name>UBRR Proxy Repository</name>
+                    <url>https://nexus.dev.ubrr.ru/repository/maven-central/</url>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
