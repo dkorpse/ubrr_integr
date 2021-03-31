@@ -1,17 +1,22 @@
-def packageName   = 'ubrr_integr'
-def registryName  = 'nexus.dev.ubrr.ru'
-def imageFullName = ''
-def failureSent   = false
+def packageName        = 'ubrr-integr'
+def imageName          = 'docker-host.dev.ubrr.ru/' + packageName
+// System variables
+def imageVersion       = ''
+def failureSent        = false
 pipeline {
     options {
         buildDiscarder logRotator(numToKeepStr: '5')
     }
+    triggers{
+        bitbucketPush()
+    }
     post {
         cleanup {
             script {
-                if (imageFullName) {
-                    sh "docker rmi " + imageFullName
+                if (imageVersion) {
+                    sh "docker rmi " + imageName + ":" + imageVersion + " || true"
                 }
+                sh "docker rmi " + imageName + ":latest || true"
             }
             cleanWs()
         }
@@ -54,29 +59,39 @@ pipeline {
     }
     agent any
     stages {
-        stage('Prepare parameters') {
+        stage('Prepare params') {
             steps {
-                    echo "Opa!"
+                script {
+                    runUser = sh(script: "whoami", returnStdout: true).trim()
+                }
             }
         }
         stage('Compile project') {
             agent {
                 docker { 
-                    image registryName + '/dockerhub/maven:3.3-jdk-8'
+                    image 'nexus.dev.ubrr.ru/dockerhub/maven:3.3-jdk-8'
                     reuseNode true
                     args "--entrypoint='' -v /etc/hosts:/etc/hosts:ro"
                 }
             }
             steps {
-                    sh "mvn -Pubrr clean install"
+                    sh "mvn -P ubrr clean install"
+                    script {
+                        imageVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                    }
             }
         }
         stage('Build docker image') {
             steps {
-                    script {
-                        imageFullName = registryName + '/' + packageName + ":0.0.1"
-                        dockerImage = docker.build(imageFullName)
+                sh "docker pull nexus.dev.ubrr.ru/dockerhub/openjdk:11.0.2"
+                sh "docker tag nexus.dev.ubrr.ru/dockerhub/openjdk:11.0.2 openjdk:11.0.2"
+                script {
+                    dockerImage = docker.build(imageName + ':' + imageVersion)
+                    docker.withRegistry( 'https://docker-host.dev.ubrr.ru', 'nexus-push' ) {
+                        dockerImage.push()
+                        dockerImage.push('latest')
                     }
+                }
             }
         }
     }
