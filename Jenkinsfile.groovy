@@ -71,7 +71,7 @@ pipeline {
                 docker { 
                     image 'nexus.dev.ubrr.ru/dockerhub/maven:3.3-jdk-8'
                     reuseNode true
-                    args "--entrypoint='' -v /etc/hosts:/etc/hosts:ro"
+                    args "--entrypoint='' -v /etc/hosts:/etc/hosts:ro -v $HOME/.m2:/root/.m2"
                 }
             }
             steps {
